@@ -1,0 +1,201 @@
+{
+  "roomsByBuilding": {
+    "Private residence": [
+      "Living room",
+      "Bedroom",
+      "Bathroom",
+      "Kitchen",
+      "Dining room",
+      "Entrance hall",
+      "Home office",
+      "Walk-in wardrobe"
+    ],
+    "Boutique hotel": [
+      "Lobby",
+      "Guest room",
+      "Bathroom",
+      "Corridor",
+      "Restaurant",
+      "Bar",
+      "Spa area"
+    ],
+    "Restaurant": [
+      "Dining room",
+      "Private dining room",
+      "Bar area",
+      "Entrance",
+      "Open kitchen"
+    ],
+    "Bar": [
+      "Main bar",
+      "Lounge seating",
+      "Private booth area",
+      "Entrance",
+      "Terrace"
+    ],
+    "Cafe": [
+      "Seating area",
+      "Counter",
+      "Entrance",
+      "Outdoor terrace"
+    ],
+    "Retail store": [
+      "Shop floor",
+      "Fitting room",
+      "Window display",
+      "Checkout area",
+      "Stockroom"
+    ],
+    "Office workspace": [
+      "Open-plan workspace",
+      "Reception",
+      "Meeting room",
+      "Breakout space",
+      "Private office"
+    ],
+    "Spa & wellness centre": [
+      "Treatment room",
+      "Reception",
+      "Relaxation lounge",
+      "Changing room",
+      "Pool area"
+    ]
+  },
+  "steps": [
+    {
+      "key": "buildingType",
+      "label": "Step 1",
+      "question": "What type of building or venue?",
+      "type": "chip",
+      "optionsSource": "roomsByBuildingKeys"
+    },
+    {
+      "key": "room",
+      "label": "Step 2",
+      "question": "Which room or area?",
+      "type": "chip",
+      "optionsSource": "roomsByBuilding"
+    },
+    {
+      "key": "style",
+      "label": "Step 3",
+      "question": "What design style?",
+      "type": "chip",
+      "options": [
+        "Contemporary minimalist",
+        "Scandinavian",
+        "Japandi",
+        "Mid-century modern",
+        "Industrial",
+        "Art deco",
+        "Biophilic",
+        "Coastal",
+        "Maximalist eclectic",
+        "Luxury classic"
+      ]
+    },
+    {
+      "key": "materials",
+      "label": "Step 4",
+      "question": "What materials and palette?",
+      "type": "chip",
+      "options": [
+        "Warm wood and brass",
+        "Concrete and steel",
+        "Marble and chrome",
+        "Linen and rattan",
+        "Stone and earth tones",
+        "Monochrome black and white",
+        "Terrazzo and glass",
+        "Leather and walnut"
+      ]
+    },
+    {
+      "key": "mood",
+      "label": "Step 5",
+      "question": "What mood or tone?",
+      "type": "chip",
+      "options": [
+        "Warm and inviting",
+        "Calm and serene",
+        "Bold and dramatic",
+        "Fresh and airy",
+        "Moody and intimate",
+        "Playful and vibrant",
+        "Refined and quiet"
+      ]
+    },
+    {
+      "key": "lighting",
+      "label": "Step 6",
+      "question": "What lighting?",
+      "type": "chip",
+      "options": [
+        "Soft natural daylight",
+        "Golden hour",
+        "Warm ambient evening",
+        "Dramatic spotlighting",
+        "Overcast diffused light",
+        "Candlelit"
+      ]
+    },
+    {
+      "key": "camera",
+      "label": "Step 7",
+      "question": "What camera angle?",
+      "type": "chip",
+      "options": [
+        "Wide angle, eye level",
+        "Low angle, dramatic",
+        "Overhead plan view",
+        "Close-up detail vignette",
+        "Three-quarter corner view"
+      ]
+    },
+    {
+      "key": "medium",
+      "label": "Step 8",
+      "question": "What medium or rendering technique?",
+      "type": "chip",
+      "options": [
+        "Photorealistic render",
+        "Architectural photograph",
+        "Watercolour sketch",
+        "Line drawing / wireframe",
+        "Isometric render",
+        "Hyper-detailed CGI"
+      ]
+    },
+    {
+      "key": "aspectRatio",
+      "label": "Step 9",
+      "question": "Aspect ratio?",
+      "type": "chip",
+      "optional": true,
+      "options": [
+        "1:1 square",
+        "4:5 portrait",
+        "3:4 portrait",
+        "16:9 landscape",
+        "21:9 widescreen",
+        "No preference"
+      ]
+    },
+    {
+      "key": "notes",
+      "label": "Step 10",
+      "question": "Anything else to add?",
+      "type": "text",
+      "optional": true,
+      "placeholder": "e.g. include a large abstract artwork above the fireplace, keep the composition symmetrical..."
+    },
+    {
+      "key": "avoid",
+      "label": "Step 11",
+      "question": "Anything to avoid?",
+      "type": "text",
+      "optional": true,
+      "placeholder": "e.g. clutter, harsh shadows, visible people, text or logos..."
+    }
+  ]
+}

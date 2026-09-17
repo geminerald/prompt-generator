@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Render Brief Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EDE7DA;
+    --paper-raised: #F6F2E9;
+    --ink: #221F1B;
+    --ink-soft: #6B655B;
+    --ink-faint: #A39C8E;
+    --accent: #4C6659;
+    --accent-ink: #F6F2E9;
+    --accent-soft: #DCE2D9;
+    --line: #D8D0BF;
+    --line-strong: #C3B9A4;
+    --shadow: 0 1px 2px rgba(34,31,27,0.06);
+    --radius: 3px;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #1B1A17;
+      --paper-raised: #242220;
+      --ink: #EDE7DA;
+      --ink-soft: #A39C8E;
+      --ink-faint: #756F63;
+      --accent: #86A896;
+      --accent-ink: #14231B;
+      --accent-soft: #2A332C;
+      --line: #35322C;
+      --line-strong: #47433A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1B1A17;
+    --paper-raised: #242220;
+    --ink: #EDE7DA;
+    --ink-soft: #A39C8E;
+    --ink-faint: #756F63;
+    --accent: #86A896;
+    --accent-ink: #14231B;
+    --accent-soft: #2A332C;
+    --line: #35322C;
+    --line-strong: #47433A;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 28px 120px;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 28px;
+    margin-bottom: 40px;
+  }
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-size: clamp(28px, 4vw, 40px);
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 15px;
+    max-width: 46ch;
+    line-height: 1.5;
+  }
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 9px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color .15s, color .15s;
+  }
+  .reset-btn:hover { border-color: var(--accent); color: var(--ink); }
+  .reset-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 56px;
+    align-items: start;
+  }
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* ---- Steps ---- */
+  .steps { display: flex; flex-direction: column; }
+
+  .step {
+    display: flex;
+    gap: 18px;
+    padding: 26px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .step:first-child { padding-top: 0; }
+
+  .step-index {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .step.done .step-index {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+  .step.active .step-index {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .step.pending { opacity: 0.38; }
+  .step.pending .step-index { color: var(--ink-faint); }
+
+  .step-body { flex: 1; min-width: 0; }
+
+  .step-label {
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--ink-faint);
+    margin-bottom: 3px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .optional-tag {
+    font-size: 10px;
+    padding: 1px 7px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--ink-faint);
+  }
+  .step-question {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    font-weight: 500;
+    margin: 0 0 14px;
+  }
+  .step.pending .step-question { margin-bottom: 0; }
+
+  /* collapsed summary row for a completed step */
+  .step-summary {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 2px 0;
+  }
+  .step.done .step-summary { display: flex; }
+  .step.done .step-question,
+  .step.done .chip-grid,
+  .step.done .notes-field,
+  .step.done .notes-skip { display: none; }
+  .step-summary-value {
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .step-summary-edit {
+    font-size: 12px;
+    color: var(--ink-faint);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    margin-left: auto;
+  }
+  .step-summary:hover .step-summary-edit { color: var(--accent); }
+
+  .chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  .chip {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 9px 15px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip:active { transform: scale(0.98); }
+  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .chip.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .notes-field {
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+    color: var(--ink);
+    resize: vertical;
+    min-height: 64px;
+    line-height: 1.5;
+  }
+  .notes-field:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .notes-skip {
+    margin-top: 10px;
+    background: none;
+    border: none;
+    color: var(--ink-faint);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  /* ---- Preview panel ---- */
+  .preview {
+    position: sticky;
+    top: 28px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px 26px 22px;
+    box-shadow: var(--shadow);
+  }
+  .preview-label {
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .preview-count { color: var(--ink-faint); }
+  .preview-text {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    line-height: 1.55;
+    min-height: 90px;
+  }
+  .preview-text .filled { color: var(--ink); }
+  .preview-text .empty { color: var(--ink-faint); font-style: italic; }
+  .preview-text .avoid-line { display: block; margin-top: 10px; font-size: 15px; color: var(--ink-soft); font-family: 'Inter', sans-serif; }
+
+  .preview-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .copy-btn {
+    flex: 1;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .copy-btn:hover { opacity: 0.9; }
+  .copy-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .copy-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .copy-btn.copied { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+  @media (max-width: 880px) {
+    .preview { position: static; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Render Brief Builder</h1>
+      <p>Work through the brief step by step. Each choice narrows the next, and the prompt on the right writes itself as you go.</p>
+    </div>
+    <button class="reset-btn" id="resetBtn">Start over</button>
+  </header>
+
+  <div class="layout">
+    <div class="steps" id="steps"></div>
+
+    <aside class="preview">
+      <div class="preview-label">
+        <span>Prompt</span>
+        <span class="preview-count" id="previewCount"></span>
+      </div>
+      <div class="preview-text" id="previewText"></div>
+      <div class="preview-actions">
+        <button class="copy-btn" id="copyBtn" disabled>Copy prompt</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  // All step definitions and option lists live in options.json, next to this
+  // file. Edit that file to add/remove/rename building types, rooms, styles,
+  // etc. -- no need to touch this HTML. Requires being served over a URL
+  // (GitHub Pages, `python3 -m http.server`, etc.) rather than opened
+  // directly as a file, since browsers block fetch() from file://.
+  let STEPS = [];
+  let roomsByBuilding = {};
+
+  function buildSteps(data) {
+    roomsByBuilding = data.roomsByBuilding || {};
+    return (data.steps || []).map(raw => {
+      const step = Object.assign({}, raw);
+      step.isText = step.type === 'text';
+      if (step.optionsSource === 'roomsByBuildingKeys') {
+        step.options = Object.keys(roomsByBuilding);
+      } else if (step.optionsSource === 'roomsByBuilding') {
+        step.getOptions = (s) => roomsByBuilding[s.buildingType] || [];
+      }
+      return step;
+    });
+  }
+
+  const state = {};
+  const stepsEl = document.getElementById('steps');
+  const previewText = document.getElementById('previewText');
+  const previewCount = document.getElementById('previewCount');
+  const copyBtn = document.getElementById('copyBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  function currentActiveIndex() {
+    for (let i = 0; i < STEPS.length; i++) {
+      if (!(STEPS[i].key in state)) return i;
+    }
+    return STEPS.length; // all done
+  }
+
+  function render() {
+    const activeIdx = currentActiveIndex();
+    stepsEl.innerHTML = '';
+
+    STEPS.forEach((step, i) => {
+      const div = document.createElement('div');
+      const status = i < activeIdx ? 'done' : (i === activeIdx ? 'active' : 'pending');
+      div.className = 'step ' + status;
+
+      const idxEl = document.createElement('div');
+      idxEl.className = 'step-index';
+      idxEl.textContent = i + 1;
+      div.appendChild(idxEl);
+
+      const body = document.createElement('div');
+      body.className = 'step-body';
+
+      const labelEl = document.createElement('div');
+      labelEl.className = 'step-label';
+      labelEl.textContent = step.label;
+      if (step.optional) {
+        const tag = document.createElement('span');
+        tag.className = 'optional-tag';
+        tag.textContent = 'optional';
+        labelEl.appendChild(tag);
+      }
+      body.appendChild(labelEl);
+
+      const qEl = document.createElement('p');
+      qEl.className = 'step-question';
+      qEl.textContent = step.question;
+      body.appendChild(qEl);
+
+      if (status === 'done') {
+        const summary = document.createElement('div');
+        summary.className = 'step-summary';
+        summary.tabIndex = 0;
+        summary.setAttribute('role', 'button');
+        const val = document.createElement('span');
+        val.className = 'step-summary-value';
+        val.textContent = state[step.key] || '(skipped)';
+        const edit = document.createElement('span');
+        edit.className = 'step-summary-edit';
+        edit.textContent = 'Edit';
+        summary.appendChild(val);
+        summary.appendChild(edit);
+        const openEdit = () => {
+          // editing a step invalidates everything after it too (e.g. building type -> room)
+          for (let j = i; j < STEPS.length; j++) delete state[STEPS[j].key];
+          render();
+        };
+        summary.addEventListener('click', openEdit);
+        summary.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openEdit(); } });
+        body.appendChild(summary);
+      } else if (status === 'active' && step.isText) {
+        const textarea = document.createElement('textarea');
+        textarea.className = 'notes-field';
+        textarea.placeholder = step.placeholder || '';
+        textarea.value = state[step.key] || '';
+        textarea.addEventListener('input', () => {
+          updatePreview({ [step.key]: textarea.value });
+        });
+        textarea.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { finishText(step.key, textarea.value.trim()); }
+        });
+        body.appendChild(textarea);
+
+        const skip = document.createElement('button');
+        skip.className = 'notes-skip';
+        skip.textContent = step.optional ? 'Skip →' : 'Continue →';
+        skip.addEventListener('click', () => finishText(step.key, textarea.value.trim()));
+        body.appendChild(skip);
+
+        setTimeout(() => textarea.focus(), 0);
+      } else if (status === 'active') {
+        const grid = document.createElement('div');
+        grid.className = 'chip-grid';
+        const options = step.options || (step.getOptions ? step.getOptions(state) : []);
+        options.forEach(opt => {
+          const chip = document.createElement('button');
+          chip.className = 'chip';
+          chip.type = 'button';
+          chip.textContent = opt;
+          chip.addEventListener('click', () => selectValue(step.key, opt));
+          grid.appendChild(chip);
+        });
+        body.appendChild(grid);
+      }
+
+      div.appendChild(body);
+      stepsEl.appendChild(div);
+    });
+
+    updatePreview();
+  }
+
+  function selectValue(key, value) {
+    state[key] = value;
+    render();
+  }
+
+  function finishText(key, text) {
+    state[key] = text; // may be empty string, which counts as "answered/skipped"
+    render();
+  }
+
+  function assemblePrompt(liveOverride) {
+    // Keyword-group structure (Medium, Subject, Materials, Lighting, Mood,
+    // Composition, Parameters) rather than a grammatical sentence -- most
+    // AI image generators weigh short comma-separated phrases better than prose.
+    const s = Object.assign({}, state, liveOverride || {});
+    const parts = [];
+
+    if (s.medium) parts.push(s.medium.toLowerCase());
+
+    let subject = '';
+    if (s.style) subject += s.style.toLowerCase() + ' ';
+    subject += s.room ? s.room.toLowerCase() : '[room]';
+    subject += ' in a ' + (s.buildingType ? s.buildingType.toLowerCase() : '[building type]');
+    parts.push(subject);
+
+    if (s.materials) parts.push(s.materials.toLowerCase());
+    if (s.lighting) parts.push(s.lighting.toLowerCase());
+    if (s.mood) parts.push(s.mood.toLowerCase() + ' mood');
+    if (s.camera) parts.push(s.camera.toLowerCase() + ' composition');
+    if (s.aspectRatio && s.aspectRatio !== 'No preference') parts.push(s.aspectRatio.toLowerCase() + ' aspect ratio');
+    if (s.notes) parts.push(s.notes.replace(/\.$/, ''));
+
+    const sentence = parts.join(', ');
+
+    let avoidLine = '';
+    if (s.avoid) avoidLine = 'Avoid: ' + s.avoid.replace(/\.?$/, '.');
+
+    return { sentence, avoidLine };
+  }
+
+  function countFilled() {
+    return STEPS.filter(st => st.key in state).length;
+  }
+
+  function updatePreview(liveOverride) {
+    const answeredCount = countFilled();
+    previewCount.textContent = answeredCount + ' / ' + STEPS.length;
+
+    if (answeredCount === 0 && !liveOverride) {
+      previewText.innerHTML = '<span class="empty">Your prompt will build here as you answer each step.</span>';
+      copyBtn.disabled = true;
+      copyBtn.textContent = 'Copy prompt';
+      copyBtn.classList.remove('copied');
+      return;
+    }
+
+    const { sentence, avoidLine } = assemblePrompt(liveOverride);
+    let html = '<span class="filled">' + escapeHtml(sentence) + '</span>';
+    if (avoidLine) html += '<span class="avoid-line">' + escapeHtml(avoidLine) + '</span>';
+    previewText.innerHTML = html;
+
+    const allDone = countFilled() === STEPS.length;
+    copyBtn.disabled = !allDone;
+    if (allDone) {
+      copyBtn.textContent = 'Copy prompt';
+      copyBtn.classList.remove('copied');
+    }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  copyBtn.addEventListener('click', async () => {
+    const { sentence, avoidLine } = assemblePrompt();
+    const full = avoidLine ? sentence + '\n\n' + avoidLine : sentence;
+    try {
+      await navigator.clipboard.writeText(full);
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = full;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    copyBtn.textContent = 'Copied ✓';
+    copyBtn.classList.add('copied');
+    setTimeout(() => {
+      copyBtn.textContent = 'Copy prompt';
+      copyBtn.classList.remove('copied');
+    }, 1800);
+  });
+
+  resetBtn.addEventListener('click', () => {
+    Object.keys(state).forEach(k => delete state[k]);
+    render();
+  });
+
+  async function init() {
+    stepsEl.innerHTML = '<p style="color:var(--ink-soft); font-size:14px;">Loading options…</p>';
+    try {
+      const res = await fetch('./options.json');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      STEPS = buildSteps(data);
+      render();
+    } catch (err) {
+      stepsEl.innerHTML =
+        '<p style="color:var(--ink-soft); font-size:14px; line-height:1.6; max-width:52ch;">' +
+        'Could not load <code>options.json</code>. Make sure it sits in the same folder as this file, ' +
+        'and that you\'re viewing this over a local server rather than opening the file directly ' +
+        '(browsers block that for security). From this folder, try: <br><br>' +
+        '<code>python3 -m http.server</code> &nbsp;then open <code>http://localhost:8000</code>' +
+        '</p>';
+      console.error(err);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
